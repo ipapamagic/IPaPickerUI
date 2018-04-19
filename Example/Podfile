@@ -1,0 +1,11 @@
+use_frameworks!
+
+target 'IPaPickerUI_Example' do
+  pod 'IPaPickerUI', :path => '../'
+
+  target 'IPaPickerUI_Tests' do
+    inherit! :search_paths
+
+    
+  end
+end
