@@ -1,3 +1,5 @@
+source 'https://github.com/CocoaPods/Specs.git'
+source 'https://github.com/ipapamagic/IPaPods.git'
 use_frameworks!
 
 target 'IPaPickerUI_Example' do

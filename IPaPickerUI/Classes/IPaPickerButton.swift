@@ -7,7 +7,7 @@
 //
 
 import UIKit
-
+import IPaDesignableUI
 @objc public protocol IPaPickerButtonDelegate {
     func numberOfRow(in button:IPaPickerButton) -> Int
     func pickerButton(_ button:IPaPickerButton,titleForRow row:Int) -> String
@@ -16,7 +16,7 @@ import UIKit
     @objc optional func rowHightInPickerButton(_ button:IPaPickerButton) -> CGFloat
 }
 
-open class IPaPickerButton :UIButton {
+open class IPaPickerButton :IPaDesignableButton {
     open var delegate:IPaPickerButtonDelegate!
     lazy var pickerView:UIPickerView = {
         var _pickerView = UIPickerView(frame:.zero)

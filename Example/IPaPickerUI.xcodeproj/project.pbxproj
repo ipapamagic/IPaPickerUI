@@ -269,11 +269,19 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-IPaPickerUI_Example/Pods-IPaPickerUI_Example-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/IPaDesignableUI/IPaDesignableUI.framework",
+				"${BUILT_PRODUCTS_DIR}/IPaDownloadManager/IPaDownloadManager.framework",
+				"${BUILT_PRODUCTS_DIR}/IPaLog/IPaLog.framework",
 				"${BUILT_PRODUCTS_DIR}/IPaPickerUI/IPaPickerUI.framework",
+				"${BUILT_PRODUCTS_DIR}/IPaSecurity/IPaSecurity.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IPaDesignableUI.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IPaDownloadManager.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IPaLog.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IPaPickerUI.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IPaSecurity.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
