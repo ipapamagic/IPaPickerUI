@@ -39,6 +39,14 @@ open class IPaPickerButton :IPaDesignableButton {
         toolBar.items = array
         return toolBar
         }()
+    open var selectedIndex:Int {
+        get {
+            return self.pickerView.selectedRow(inComponent: 0)
+        }
+        set {
+            self.pickerView.selectRow(newValue, inComponent: 0, animated: false)
+        }
+    }
     override open var inputView:UIView! {
         get {
             return pickerView as UIView
@@ -70,6 +78,9 @@ open class IPaPickerButton :IPaDesignableButton {
         addTarget(self,
                   action:#selector(IPaPickerButton.onTouch(_:)),
                   for:.touchUpInside)
+    }
+    @objc open func select(_ index:Int,animated:Bool) {
+        self.pickerView.selectRow(index, inComponent: 0, animated: animated)
     }
     @objc func onTouch(_ sender:Any) {
         becomeFirstResponder()

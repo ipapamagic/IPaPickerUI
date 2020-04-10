@@ -25,6 +25,14 @@ open class IPaPickerTableViewCell :UITableViewCell {
         _pickerView.showsSelectionIndicator = true
         return _pickerView
     }()
+    open var selectedIndex:Int {
+        get {
+            return self.pickerView.selectedRow(inComponent: 0)
+        }
+        set {
+            self.pickerView.selectRow(newValue, inComponent: 0, animated: false)
+        }
+    }
     lazy var toolBar:UIToolbar = {
         let toolBar = UIToolbar()
         toolBar.barStyle = .blackTranslucent
@@ -71,7 +79,9 @@ open class IPaPickerTableViewCell :UITableViewCell {
     func onTouch(sender:Any) {
         becomeFirstResponder()
     }
-    
+    @objc open func select(_ index:Int,animated:Bool) {
+        self.pickerView.selectRow(index, inComponent: 0, animated: animated)
+    }
     @objc func onDone(_ sender:Any) {
         //MARK:insert your onDone code
         resignFirstResponder()
