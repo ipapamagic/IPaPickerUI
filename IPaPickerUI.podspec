@@ -8,9 +8,9 @@
 
 Pod::Spec.new do |s|
   s.name             = 'IPaPickerUI'
-  s.version          = '1.1'
+  s.version          = '2.0'
   s.summary          = 'A short description of IPaPickerUI.'
-    s.swift_version  = '5.0'
+    s.swift_version  = '5.2'
 # This description is used to generate tags and improve search results.
 #   * Think: What does it do? Why did you write it? What is the focus?
 #   * Try to keep it short, snappy and to the point.
@@ -39,5 +39,5 @@ TODO: Add long description of the pod here.
   # s.public_header_files = 'Pod/Classes/**/*.h'
   # s.frameworks = 'UIKit', 'MapKit'
   # s.dependency 'AFNetworking', '~> 2.3'
-    s.dependency 'IPaDesignableUI', '~> 3.6'
+    s.dependency 'IPaDesignableUI', '~> 4.0'
 end
