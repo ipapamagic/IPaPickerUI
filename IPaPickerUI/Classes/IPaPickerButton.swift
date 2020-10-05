@@ -16,7 +16,7 @@ import IPaDesignableUI
     @objc optional func rowHightInPickerButton(_ button:IPaPickerButton) -> CGFloat
 }
 
-open class IPaPickerButton :IPaDesignableButton {
+open class IPaPickerButton :IPaStyleButton {
     open var delegate:IPaPickerButtonDelegate!
     lazy var pickerView:UIPickerView = {
         var _pickerView = UIPickerView(frame:.zero)
