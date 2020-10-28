@@ -9,44 +9,44 @@
 import UIKit
 
 @objc public protocol IPaPickerTableViewCellDelegate {
-    func numberOfRow(in cell:IPaPickerTableViewCell) -> Int
-    func pickerTableViewCell(_ cell:IPaPickerTableViewCell,titleForRow row:Int) -> String
-    func pickerTableViewCell(_ cell:IPaPickerTableViewCell,didSelectRow row:Int)
-    @objc optional func pickerTableViewCellWidth(_ cell:IPaPickerTableViewCell) -> CGFloat
-    @objc optional func rowHightInPickerTableViewCell(_ cell:IPaPickerTableViewCell) -> CGFloat
+    func pickerTableViewCell(_ cell:IPaPickerTableViewCell,numberOfRowsIn component:Int) -> Int
+    func pickerTableViewCell(_ cell:IPaPickerTableViewCell,titleFor row:Int,for component:Int) -> String
+    func pickerTableViewCell(_ cell:IPaPickerTableViewCell,didSelect row:Int,for component:Int)
+    func pickerTableViewCellConfirm(_ cell:IPaPickerTableViewCell)
+    @objc optional func pickerTableViewCell(_ cell:IPaPickerTableViewCell,rowWidthFor component:Int) -> CGFloat
+    @objc optional func pickerTableViewCell(_ cell:IPaPickerTableViewCell,rowHeightFor component:Int) -> CGFloat
+    @objc optional func numberOfComponents(for cell:IPaPickerTableViewCell) -> Int
+    @objc optional func toolBarConfirmText(for cell:IPaPickerTableViewCell) -> String
 }
 
-open class IPaPickerTableViewCell :UITableViewCell {
-    var delegate:IPaPickerTableViewCellDelegate!
-    lazy var pickerView:UIPickerView = {
-        var _pickerView = UIPickerView(frame:.zero)
-        _pickerView.delegate = self
-        _pickerView.dataSource = self
-        _pickerView.showsSelectionIndicator = true
-        return _pickerView
-    }()
-    open var selectedIndex:Int {
+open class IPaPickerTableViewCell :UITableViewCell,IPaPickerProtocol {
+    var toolBarConfirmText: String {
+        return self.delegate.toolBarConfirmText?(for: self) ?? "Done"
+    }
+    var onPickerConfirm: Selector {
+        return #selector(self.onPickerDone(_:))
+    }
+    open var selection: [Int] {
         get {
-            return self.pickerView.selectedRow(inComponent: 0)
+            return self.getSelection()
         }
         set {
-            self.pickerView.selectRow(newValue, inComponent: 0, animated: false)
+            self.setSelection(newValue)
         }
     }
+    lazy var pickerView:UIPickerView = {
+        return self.createDefaultPickerView()
+    }()
+
     lazy var toolBar:UIToolbar = {
-        let toolBar = UIToolbar()
-        toolBar.barStyle = .blackTranslucent
-        toolBar.autoresizingMask = .flexibleHeight
-        toolBar.sizeToFit()
-        var frame = toolBar.frame
-        frame.size.height = 44
-        toolBar.frame = frame;
-        let doneBtn = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(IPaPickerTableViewCell.onDone(_:)))
-        let flexibleSpaceLeft = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let array = [flexibleSpaceLeft,doneBtn]
-        toolBar.items = array
-        return toolBar
-        }()
+        return self.createDefaultToolBar()
+    }()
+    @IBOutlet open var delegate:IPaPickerTableViewCellDelegate! {
+        didSet {
+            self.updateUI(nil)
+        }
+    }
+    
     override open var inputView:UIView! {
         get {
             return pickerView as UIView
@@ -74,18 +74,15 @@ open class IPaPickerTableViewCell :UITableViewCell {
     }
     required public init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        
     }
-    func onTouch(sender:Any) {
-        becomeFirstResponder()
-    }
-    @objc open func select(_ index:Int,animated:Bool) {
-        self.pickerView.selectRow(index, inComponent: 0, animated: animated)
-    }
-    @objc func onDone(_ sender:Any) {
+
+    @objc func onPickerDone(_ sender:Any) {
         //MARK:insert your onDone code
         resignFirstResponder()
-        self.delegate.pickerTableViewCell(self, didSelectRow: pickerView.selectedRow(inComponent: 0))
+        self.delegate.pickerTableViewCellConfirm(self)
+    }
+    func updateUI(_ titles: [String]?) {
+        
     }
     
 }
@@ -96,13 +93,13 @@ extension IPaPickerTableViewCell :UIPickerViewDelegate,UIPickerViewDataSource
     //MARK: UIPickerViewDataSource
     // returns the number of 'columns' to display.
     public func numberOfComponents(in pickerView: UIPickerView) -> Int {
-        return 1
+        return self.delegate.numberOfComponents?(for: self) ?? 1
     }
     
     // returns the # of rows in each component..
     public func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int
     {
-        return self.delegate.numberOfRow(in: self)
+        return self.delegate.pickerTableViewCell(self, numberOfRowsIn: component)
     }
     //MARK: UIPickerViewDelegate
     // returns width of column and height of row for each component.
@@ -110,17 +107,11 @@ extension IPaPickerTableViewCell :UIPickerViewDelegate,UIPickerViewDataSource
     
     public func pickerView(_ pickerView: UIPickerView, widthForComponent component: Int) -> CGFloat
     {
-        guard let pickerTableViewCellWidth = self.delegate.pickerTableViewCellWidth else {
-            return 100
-        }
-        return pickerTableViewCellWidth(self)
+        return self.delegate.pickerTableViewCell?(self, rowWidthFor: component) ?? 100
     }
     public func pickerView(_ pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat
     {
-        guard let rowHightInPickerTableViewCell = self.delegate.rowHightInPickerTableViewCell else {
-            return 44
-        }
-        return rowHightInPickerTableViewCell(self)
+        return self.delegate.pickerTableViewCell?(self, rowHeightFor: component) ?? 44
     }
     
     // these methods return either a plain NSString, a NSAttributedString, or a view (e.g UILabel) to display the row for the component.
@@ -128,10 +119,10 @@ extension IPaPickerTableViewCell :UIPickerViewDelegate,UIPickerViewDataSource
     // If you return back a different object, the old one will be released. the view will be centered in the row rect
     public func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String?
     {
-        return self.delegate.pickerTableViewCell(self, titleForRow: row)
+        return self.delegate.pickerTableViewCell(self, titleFor: row,for:component)
     }
     public func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int)
     {
-        self.delegate.pickerTableViewCell(self, didSelectRow: row)
+        self.delegate.pickerTableViewCell(self, didSelect: row,for:component)
     }
 }

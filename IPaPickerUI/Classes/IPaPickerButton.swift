@@ -9,44 +9,46 @@
 import UIKit
 import IPaDesignableUI
 @objc public protocol IPaPickerButtonDelegate {
-    func numberOfRow(in button:IPaPickerButton) -> Int
-    func pickerButton(_ button:IPaPickerButton,titleForRow row:Int) -> String
-    func pickerButton(_ button:IPaPickerButton,didSelectRow row:Int)
-    @objc optional func pickerButtonWidth(_ button:IPaPickerButton) -> CGFloat
-    @objc optional func rowHightInPickerButton(_ button:IPaPickerButton) -> CGFloat
+    func pickerButton(_ button:IPaPickerButton,numberOfRowsIn component:Int) -> Int
+    
+    func pickerButton(_ button:IPaPickerButton,titleFor row:Int,for component:Int) -> String
+    func pickerButton(_ button:IPaPickerButton,didSelect row:Int,for component:Int)
+    func pickerButtonConfirm(_ button:IPaPickerButton)
+    @objc optional func pickerButton(_ button:IPaPickerButton, rowWidthFor component:Int) -> CGFloat
+    @objc optional func pickerButton(_ button:IPaPickerButton, rowHeightFor component:Int) -> CGFloat
+    @objc optional func numberOfComponents(for button:IPaPickerButton) -> Int
+    @objc optional func toolBarConfirmText(for button:IPaPickerButton) -> String
+    //choose one func for title contribution
+    
+    @objc optional func pickerButtonDisplayTitle(_ button:IPaPickerButton) -> String
+    @objc optional func pickerButton(_ button:IPaPickerButton,displayTitleFor titles:[String]) -> String
 }
 
-open class IPaPickerButton :IPaStyleButton {
-    open var delegate:IPaPickerButtonDelegate!
-    lazy var pickerView:UIPickerView = {
-        var _pickerView = UIPickerView(frame:.zero)
-        _pickerView.delegate = self
-        _pickerView.dataSource = self
-        _pickerView.showsSelectionIndicator = true
-        return _pickerView
+open class IPaPickerButton :IPaStyleButton,IPaPickerProtocol {
+    var toolBarConfirmText: String {
+        return self.delegate.toolBarConfirmText?(for: self) ?? "Done"
+    }
+    
+    var onPickerConfirm: Selector {
+        return #selector(self.onPickerDone(_:))
+    }
+    
+    
+    public lazy var pickerView:UIPickerView = {
+        return self.createDefaultPickerView()
     }()
-    lazy var toolBar:UIToolbar = {
-        let toolBar = UIToolbar()
-        toolBar.barStyle = .blackTranslucent
-        toolBar.autoresizingMask = .flexibleHeight
-        toolBar.sizeToFit()
-        var frame = toolBar.frame
-        frame.size.height = 44
-        toolBar.frame = frame;
-        let doneBtn = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(IPaPickerButton.onDone(_:)))
-        let flexibleSpaceLeft = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let array = [flexibleSpaceLeft,doneBtn]
-        toolBar.items = array
-        return toolBar
-        }()
-    open var selectedIndex:Int {
+    public lazy var toolBar:UIToolbar = {
+        return self.createDefaultToolBar()
+    }()
+    open var selection: [Int] {
         get {
-            return self.pickerView.selectedRow(inComponent: 0)
+            return self.getSelection()
         }
         set {
-            self.pickerView.selectRow(newValue, inComponent: 0, animated: false)
+            self.setSelection(newValue)
         }
     }
+    @IBOutlet open var delegate:IPaPickerButtonDelegate!
     override open var inputView:UIView! {
         get {
             return pickerView as UIView
@@ -60,7 +62,7 @@ open class IPaPickerButton :IPaStyleButton {
     }
     override open func awakeFromNib() {
         super.awakeFromNib()
-
+        
     }
     override open var canBecomeFirstResponder: Bool {
         get {
@@ -70,41 +72,64 @@ open class IPaPickerButton :IPaStyleButton {
     override init(frame: CGRect) {
         super.init(frame: frame)
         addTarget(self,
-                  action:#selector(IPaPickerButton.onTouch(_:)),
+                  action:#selector(self.onTouch(_:)),
                   for:.touchUpInside)
     }
     required public init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         addTarget(self,
-                  action:#selector(IPaPickerButton.onTouch(_:)),
+                  action:#selector(self.onTouch(_:)),
                   for:.touchUpInside)
     }
-    @objc open func select(_ index:Int,animated:Bool) {
-        self.pickerView.selectRow(index, inComponent: 0, animated: animated)
-    }
+    
     @objc func onTouch(_ sender:Any) {
         becomeFirstResponder()
     }
 
-    @objc func onDone(_ sender:Any) {
+    @objc func onPickerDone(_ sender:Any) {
         //MARK:insert your onDone code
         resignFirstResponder()
-        self.delegate.pickerButton(self, didSelectRow: pickerView.selectedRow(inComponent: 0))
+        self.delegate.pickerButtonConfirm(self)
     }
-    
+    func updateUI(_ titles:[String]? = nil) {
+        
+        if let title = self.delegate.pickerButtonDisplayTitle?(self) {
+            self.setTitle(title, for: .normal)
+        }
+        var titleList = [String]()
+        if let titles = titles {
+            titleList = titles
+        }
+        else {
+            
+            for component in 0 ..< self.numberOfComponents(in: pickerView) {
+                let row = self.pickerView.selectedRow(inComponent: component)
+                titleList.append(self.pickerView(pickerView, titleForRow: row, forComponent: component) ?? "")
+            }
+            
+            
+        }
+        if let title = self.delegate.pickerButton?(self, displayTitleFor: titleList) {
+            self.setTitle(title, for: .normal)
+        }
+        else {
+            let title = titleList.joined(separator: " ")
+            self.setTitle(title, for: .normal)
+        }
+    }
 }
-extension IPaPickerButton :UIPickerViewDelegate,UIPickerViewDataSource
+extension IPaPickerButton
 {
     //MARK: UIPickerViewDataSource
     // returns the number of 'columns' to display.
     public func numberOfComponents(in pickerView: UIPickerView) -> Int {
-        return 1
+        return self.delegate.numberOfComponents?(for: self) ?? 1
     }
     
     // returns the # of rows in each component..
     public func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int
     {
-        return self.delegate.numberOfRow(in: self)
+        return self.delegate.pickerButton(self, numberOfRowsIn: component)
     }
     //MARK: UIPickerViewDelegate
     // returns width of column and height of row for each component.
@@ -112,17 +137,11 @@ extension IPaPickerButton :UIPickerViewDelegate,UIPickerViewDataSource
     
     public func pickerView(_ pickerView: UIPickerView, widthForComponent component: Int) -> CGFloat
     {
-        guard let pickerButtonWidth = self.delegate.pickerButtonWidth else {
-            return 100
-        }
-        return pickerButtonWidth(self)
+        return self.delegate.pickerButton?(self, rowWidthFor: component) ?? 100
     }
     public func pickerView(_ pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat
     {
-        guard let rowHightInPickerButton = self.delegate.rowHightInPickerButton else {
-            return 44
-        }
-        return rowHightInPickerButton(self)
+        return self.delegate.pickerButton?(self, rowHeightFor: component) ?? 44
     }
     
     // these methods return either a plain NSString, a NSAttributedString, or a view (e.g UILabel) to display the row for the component.
@@ -130,10 +149,11 @@ extension IPaPickerButton :UIPickerViewDelegate,UIPickerViewDataSource
     // If you return back a different object, the old one will be released. the view will be centered in the row rect
     public func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String?
     {
-        return self.delegate.pickerButton(self, titleForRow: row)
+        return self.delegate.pickerButton(self, titleFor: row, for: component)
     }
     public func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int)
     {
-        self.delegate.pickerButton(self, didSelectRow: row)
+        self.delegate.pickerButton(self, didSelect: row, for: component)
+        self.updateUI()
     }
 }
