@@ -17,8 +17,8 @@ import IPaDesignableUI
     @objc optional func datePickerButtonDisplayStyle(_ button:IPaDatePickerButton) -> DateFormatter.Style
 }
 open class IPaDatePickerButton: IPaStyleButton,IPaDatePickerProtocol {
-    public lazy var pickerView:UIDatePicker = {
-        return self.createDefaultPickerView()
+    lazy var pickerView:UIDatePicker = {
+        return self.createDefaultPickerView(#selector(self.onSelectedDateUpdated(_:)))
     }()
 
     public lazy var toolBar:UIToolbar = {
@@ -30,6 +30,7 @@ open class IPaDatePickerButton: IPaStyleButton,IPaDatePickerProtocol {
         }
         set {
             self.pickerView.date = newValue
+            self.updateUI()
         }
     }
     var toolBarConfirmText: String {
@@ -38,7 +39,7 @@ open class IPaDatePickerButton: IPaStyleButton,IPaDatePickerProtocol {
     var onPickerConfirm: Selector {
         return #selector(self.onPickerDone(_:))
     }
-    var dateObserver: NSKeyValueObservation?
+    
     @IBOutlet open var delegate:IPaDatePickerButtonDelegate!
     override open var inputView:UIView! {
         get {
@@ -72,10 +73,10 @@ open class IPaDatePickerButton: IPaStyleButton,IPaDatePickerProtocol {
         let title = dateFormatter.string(from: date)
         self.setTitle(title, for: .normal)
     }
-    func onSelectedDateUpdated() {
+    @objc func onSelectedDateUpdated(_ sender:Any) {
         self.delegate.datePickerButtonDidSelected(self)
+        self.updateUI()
     }
-
     /*
     // Only override draw() if you perform custom drawing.
     // An empty implementation adversely affects performance during animation.

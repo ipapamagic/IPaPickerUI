@@ -14,7 +14,7 @@ import UIKit
 }
 open class IPaDatePickerTableViewCell: UITableViewCell,IPaDatePickerProtocol {
     lazy var pickerView:UIDatePicker = {
-        return self.createDefaultPickerView()
+        return self.createDefaultPickerView(#selector(self.onSelectedDateUpdated(_:)))
     }()
     open var selectedDate:Date {
         get {
@@ -22,6 +22,7 @@ open class IPaDatePickerTableViewCell: UITableViewCell,IPaDatePickerProtocol {
         }
         set {
             self.pickerView.date = newValue
+            self.updateUI()
         }
     }
     lazy var toolBar:UIToolbar = {
@@ -33,7 +34,7 @@ open class IPaDatePickerTableViewCell: UITableViewCell,IPaDatePickerProtocol {
     var onPickerConfirm: Selector {
         return #selector(self.onPickerDone(_:))
     }
-    var dateObserver: NSKeyValueObservation?
+    
     @IBOutlet open var delegate:IPaDatePickerTableViewCellDelegate!
     override open var inputView:UIView! {
         get {
@@ -45,6 +46,9 @@ open class IPaDatePickerTableViewCell: UITableViewCell,IPaDatePickerProtocol {
             return toolBar as UIView
         }
     }
+    open override var canBecomeFirstResponder: Bool {
+        return true
+    }
     open override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
@@ -52,7 +56,9 @@ open class IPaDatePickerTableViewCell: UITableViewCell,IPaDatePickerProtocol {
 
     open override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-
+        if selected {
+            self.becomeFirstResponder()
+        }
         // Configure the view for the selected state
     }
     @objc func onPickerDone(_ sender:Any) {
@@ -60,10 +66,12 @@ open class IPaDatePickerTableViewCell: UITableViewCell,IPaDatePickerProtocol {
         resignFirstResponder()
         self.delegate.datePickerTableViewCellConfirm(self)
     }
-    func updateUI() {
+    open func updateUI() {
         
     }
-    func onSelectedDateUpdated() {
+    @objc func onSelectedDateUpdated(_ sender:Any) {
         self.delegate.datePickerTableViewCellDidSelected(self)
+        self.updateUI()
+        
     }
 }

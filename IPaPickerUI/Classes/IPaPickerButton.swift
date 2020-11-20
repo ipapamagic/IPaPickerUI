@@ -89,6 +89,7 @@ open class IPaPickerButton :IPaStyleButton,IPaPickerProtocol {
     @objc func onPickerDone(_ sender:Any) {
         //MARK:insert your onDone code
         resignFirstResponder()
+        self.updateUI()
         self.delegate.pickerButtonConfirm(self)
     }
     func updateUI(_ titles:[String]? = nil) {

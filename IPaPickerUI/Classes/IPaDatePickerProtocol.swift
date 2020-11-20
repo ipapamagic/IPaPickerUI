@@ -13,19 +13,23 @@ protocol IPaDatePickerProtocol:UIView {
     var toolBarConfirmText:String {get}
     var onPickerConfirm:Selector {get}
     var selectedDate:Date {get set}
-    var dateObserver:NSKeyValueObservation? {get set}
     func updateUI()
-    func createDefaultPickerView() -> UIDatePicker
+    func createDefaultPickerView(_ action:Selector) -> UIDatePicker
     func createDefaultToolBar() -> UIToolbar
-    func onSelectedDateUpdated()
+    func onSelectedDateUpdated(_ sender:Any)
 }
 extension IPaDatePickerProtocol {
     
-    func createDefaultPickerView() -> UIDatePicker {
+    func createDefaultPickerView(_ action:Selector) -> UIDatePicker {
         let pickerView = UIDatePicker(frame:.zero)
-        dateObserver = pickerView.observe(\.date, changeHandler: { (datePicker, valueChanged) in
-            self.onSelectedDateUpdated()
-        })
+        if #available(iOS 13.4, *) {
+            pickerView.preferredDatePickerStyle = .wheels
+        } else {
+            // Fallback on earlier versions
+        }
+        
+        pickerView.addTarget(self, action: action, for: .valueChanged)
+            
         return pickerView
     }
     func createDefaultToolBar() -> UIToolbar {
