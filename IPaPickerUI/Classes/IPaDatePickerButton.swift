@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import IPaDesignableUI
+
 @objc public protocol IPaDatePickerButtonDelegate {
     
     func datePickerButtonConfirm(_ button:IPaDatePickerButton)
@@ -16,7 +16,7 @@ import IPaDesignableUI
     @objc optional func datePickerButtonDisplayFormat(_ button:IPaDatePickerButton) -> String
     @objc optional func datePickerButtonDisplayStyle(_ button:IPaDatePickerButton) -> DateFormatter.Style
 }
-open class IPaDatePickerButton: IPaStyleButton,IPaDatePickerProtocol {
+open class IPaDatePickerButton: UIButton,IPaDatePickerProtocol {
     lazy var pickerView:UIDatePicker = {
         return self.createDefaultPickerView(#selector(self.onSelectedDateUpdated(_:)))
     }()

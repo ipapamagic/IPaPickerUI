@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import IPaDesignableUI
+
 @objc public protocol IPaPickerButtonDelegate {
     func pickerButton(_ button:IPaPickerButton,numberOfRowsIn component:Int) -> Int
     
@@ -24,7 +24,7 @@ import IPaDesignableUI
     @objc optional func pickerButton(_ button:IPaPickerButton,displayTitleFor titles:[String]) -> String
 }
 
-open class IPaPickerButton :IPaStyleButton,IPaPickerProtocol {
+open class IPaPickerButton :UIButton,IPaPickerProtocol {
     var toolBarConfirmText: String {
         return self.delegate.toolBarConfirmText?(for: self) ?? "Done"
     }
