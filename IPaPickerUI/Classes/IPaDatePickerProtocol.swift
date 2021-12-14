@@ -34,7 +34,8 @@ extension IPaDatePickerProtocol {
     }
     func createDefaultToolBar() -> UIToolbar {
         let toolBar = UIToolbar()
-        toolBar.barStyle = .blackTranslucent
+        toolBar.barStyle = .black
+        toolBar.isTranslucent = true
         toolBar.autoresizingMask = .flexibleHeight
         toolBar.sizeToFit()
         var frame = toolBar.frame
