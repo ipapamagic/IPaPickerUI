@@ -1,6 +1,6 @@
-source 'https://github.com/CocoaPods/Specs.git'
-source 'https://github.com/ipapamagic/IPaPods.git'
 use_frameworks!
+
+platform :ios, '10.0'
 
 target 'IPaPickerUI_Example' do
   pod 'IPaPickerUI', :path => '../'

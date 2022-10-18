@@ -2,8 +2,8 @@
 //  ViewController.swift
 //  IPaPickerUI
 //
-//  Created by ipapamagic@gmail.com on 01/22/2018.
-//  Copyright (c) 2018 ipapamagic@gmail.com. All rights reserved.
+//  Created by ipapamagic on 10/18/2022.
+//  Copyright (c) 2022 ipapamagic. All rights reserved.
 //
 
 import UIKit

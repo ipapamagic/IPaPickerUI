@@ -11,16 +11,18 @@ import UIKit
     
     func datePickerButtonConfirm(_ button:IPaDatePickerButton)
     func datePickerButtonDidSelected(_ button:IPaDatePickerButton)
-    @objc optional func toolBarConfirmText(for button:IPaDatePickerButton) -> String
+    @objc(toolBarConfirmTextForDatePickerButton:)
+    optional func toolBarConfirmText(for button:IPaDatePickerButton) -> String
     @objc optional func datePickerButtonDisplayTitle(_ button:IPaDatePickerButton) -> String
+    @objc optional func datePickerButtonDisplayAttributedTitle(_ button:IPaDatePickerButton) -> NSAttributedString?
     @objc optional func datePickerButtonDisplayFormat(_ button:IPaDatePickerButton) -> String
     @objc optional func datePickerButtonDisplayStyle(_ button:IPaDatePickerButton) -> DateFormatter.Style
 }
 open class IPaDatePickerButton: UIButton,IPaDatePickerProtocol {
-    lazy var pickerView:UIDatePicker = {
+    public internal(set) lazy var pickerView:UIDatePicker = {
         return self.createDefaultPickerView(#selector(self.onSelectedDateUpdated(_:)))
     }()
-
+    
     public lazy var toolBar:UIToolbar = {
         return self.createDefaultToolBar()
     }()
@@ -51,7 +53,31 @@ open class IPaDatePickerButton: UIButton,IPaDatePickerProtocol {
             return toolBar as UIView
         }
     }
+    override open func awakeFromNib() {
+        super.awakeFromNib()
+        
+    }
+    override open var canBecomeFirstResponder: Bool {
+        get {
+            return true
+        }
+    }
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        addTarget(self,
+                  action:#selector(self.onTouch(_:)),
+                  for:.touchUpInside)
+    }
+    required public init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        addTarget(self,
+                  action:#selector(self.onTouch(_:)),
+                  for:.touchUpInside)
+    }
     
+    @objc func onTouch(_ sender:Any) {
+        becomeFirstResponder()
+    }
     @objc func onPickerDone(_ sender:Any) {
         //MARK:insert your onDone code
         resignFirstResponder()
@@ -77,6 +103,7 @@ open class IPaDatePickerButton: UIButton,IPaDatePickerProtocol {
         self.delegate.datePickerButtonDidSelected(self)
         self.updateUI()
     }
+    
     /*
     // Only override draw() if you perform custom drawing.
     // An empty implementation adversely affects performance during animation.

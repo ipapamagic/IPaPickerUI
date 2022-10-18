@@ -11,43 +11,37 @@ import UIKit
 @objc public protocol IPaPickerButtonDelegate {
     func pickerButton(_ button:IPaPickerButton,numberOfRowsIn component:Int) -> Int
     
-    func pickerButton(_ button:IPaPickerButton,titleFor row:Int,for component:Int) -> String
+    @objc func pickerButton(_ button:IPaPickerButton,titleFor row:Int,for component:Int) -> String
+    @objc optional func pickerButton(_ button:IPaPickerButton,attributedTitleFor row:Int,for component:Int) -> NSAttributedString?
     func pickerButton(_ button:IPaPickerButton,didSelect row:Int,for component:Int)
     func pickerButtonConfirm(_ button:IPaPickerButton)
     @objc optional func pickerButton(_ button:IPaPickerButton, rowWidthFor component:Int) -> CGFloat
     @objc optional func pickerButton(_ button:IPaPickerButton, rowHeightFor component:Int) -> CGFloat
     @objc optional func numberOfComponents(for button:IPaPickerButton) -> Int
-    @objc optional func toolBarConfirmText(for button:IPaPickerButton) -> String
+    @objc(toolBarConfirmTextForPickerButton:)
+    optional func toolBarConfirmText(for button:IPaPickerButton) -> String
     //choose one func for title contribution
     
     @objc optional func pickerButtonDisplayTitle(_ button:IPaPickerButton) -> String
     @objc optional func pickerButton(_ button:IPaPickerButton,displayTitleFor titles:[String]) -> String
+    @objc optional func pickerButtonUpdateUI(_ button:IPaPickerButton)
 }
 
-open class IPaPickerButton :UIButton,IPaPickerProtocol {
-    var toolBarConfirmText: String {
+open class IPaPickerButton :UIButton,IPaPickerProtocols {
+    public var toolBarConfirmText: String {
         return self.delegate.toolBarConfirmText?(for: self) ?? "Done"
     }
     
-    var onPickerConfirm: Selector {
+    public var onPickerConfirm: Selector {
         return #selector(self.onPickerDone(_:))
     }
-    
-    
-    public lazy var pickerView:UIPickerView = {
+
+    public internal(set) lazy var pickerView:UIPickerView = {
         return self.createDefaultPickerView()
     }()
-    public lazy var toolBar:UIToolbar = {
+    public internal(set) lazy var toolBar:UIToolbar = {
         return self.createDefaultToolBar()
     }()
-    open var selection: [Int] {
-        get {
-            return self.getSelection()
-        }
-        set {
-            self.setSelection(newValue)
-        }
-    }
     @IBOutlet open var delegate:IPaPickerButtonDelegate!
     override open var inputView:UIView! {
         get {
@@ -93,7 +87,10 @@ open class IPaPickerButton :UIButton,IPaPickerProtocol {
         self.delegate.pickerButtonConfirm(self)
     }
     func updateUI(_ titles:[String]? = nil) {
-        
+        if let delegateUpdateUI = self.delegate.pickerButtonUpdateUI {
+            delegateUpdateUI(self)
+            return
+        }
         if let title = self.delegate.pickerButtonDisplayTitle?(self) {
             self.setTitle(title, for: .normal)
         }
@@ -111,10 +108,12 @@ open class IPaPickerButton :UIButton,IPaPickerProtocol {
             
         }
         if let title = self.delegate.pickerButton?(self, displayTitleFor: titleList) {
+            self.titleLabel?.text = title // make kvo work, sometimes settitle will not trigger kvo
             self.setTitle(title, for: .normal)
         }
         else {
             let title = titleList.joined(separator: " ")
+            self.titleLabel?.text = title // make kvo work, sometimes settitle will not trigger kvo
             self.setTitle(title, for: .normal)
         }
     }
@@ -151,6 +150,9 @@ extension IPaPickerButton
     public func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String?
     {
         return self.delegate.pickerButton(self, titleFor: row, for: component)
+    }
+    public func pickerView(_ pickerView: UIPickerView, attributedTitleForRow row: Int, forComponent component: Int) -> NSAttributedString? {
+        return self.delegate.pickerButton?(self, attributedTitleFor: row, for: component)
     }
     public func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int)
     {

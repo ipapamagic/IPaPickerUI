@@ -1,35 +1,16 @@
 PODS:
-  - IPaDesignableUI (3.6):
-    - IPaDownloadManager (~> 1.0)
-  - IPaDownloadManager (1.0):
-    - IPaSecurity (~> 3.1)
-  - IPaLog (2.3)
-  - IPaPickerUI (1.1):
-    - IPaDesignableUI (~> 3.6)
-  - IPaSecurity (3.1):
-    - IPaLog (>= 2.1)
+  - IPaPickerUI (0.1.0)
 
 DEPENDENCIES:
   - IPaPickerUI (from `../`)
-
-SPEC REPOS:
-  https://github.com/ipapamagic/IPaPods.git:
-    - IPaDesignableUI
-    - IPaDownloadManager
-    - IPaLog
-    - IPaSecurity
 
 EXTERNAL SOURCES:
   IPaPickerUI:
     :path: "../"
 
 SPEC CHECKSUMS:
-  IPaDesignableUI: 85dae86322d2c42279d1bcb6114b8fd8f43189bc
-  IPaDownloadManager: da86956abb8a6f31ca35b2b9eb8148f4363b47f0
-  IPaLog: 94e55e52fa0a4c3954ae8bf19bb56291d4d7ccb8
-  IPaPickerUI: f80bc4ee12086c4213d72f014a18e3d7aa1d8d3f
-  IPaSecurity: 0abd374149fd917d01c6845854a924b5bc79de17
+  IPaPickerUI: 705206d5cafd49e4ec78ca87fdb85ac8ee1c5424
 
-PODFILE CHECKSUM: a4e19b2bac670f618e5e07c39c0572a0ba9524ae
+PODFILE CHECKSUM: 81920509db382e42d85981207a696455879513e2
 
-COCOAPODS: 1.7.1
+COCOAPODS: 1.11.3
