@@ -63,7 +63,7 @@ open class IPaPickerButton :UIButton,IPaPickerProtocols {
             return true
         }
     }
-    override init(frame: CGRect) {
+    override public init(frame: CGRect) {
         super.init(frame: frame)
         addTarget(self,
                   action:#selector(self.onTouch(_:)),

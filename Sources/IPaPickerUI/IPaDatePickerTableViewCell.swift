@@ -70,7 +70,7 @@ open class IPaDatePickerTableViewCell: UITableViewCell,IPaDatePickerProtocol {
         }
         // Configure the view for the selected state
     }
-    @objc func onPickerDone(_ sender:Any) {
+    @objc open func onPickerDone(_ sender:Any) {
         //MARK:insert your onDone code
         resignFirstResponder()
         self.delegate.datePickerTableViewCellConfirm(self)
@@ -78,7 +78,7 @@ open class IPaDatePickerTableViewCell: UITableViewCell,IPaDatePickerProtocol {
     open func updateUI() {
         
     }
-    @objc func onSelectedDateUpdated(_ sender:Any) {
+    @objc open func onSelectedDateUpdated(_ sender:Any) {
         self.delegate.datePickerTableViewCellDidSelected(self)
         self.updateUI()
         
